@@ -1,0 +1,40 @@
+apt-get install pptpd -y
+
+sekarang kita lakukan konfigurasi di /etc/pptpd.conf dan tambahkan baris berikut ini 
+#(Recommended)
+localip 192.168.0.1
+remoteip 192.168.0.234-238
+# or
+#localip 192.168.0.234-238,192.168.0.245
+#remoteip 192.168.1.234-238,192.168.1.245
+
+dimana localip adalah alamat ip dari server dan remoteip adalah alamat ip yang diberikan kepada kliet yang terhubung ke server VPN PPTP kita.
+selanjutnya kita harus melakukan konfigurasi di /etc/ppp/pptpd-options dan tambahkan baris berikut ini
+ms-dns 8.8.8.8
+ms-dns 8.8.4.4    
+
+tahap selanjutnya kita membuat username dan password otentikasi untuk PPTP agar pengguna dapat 
+login atau mengakses VPN yang telah kita konfigurasi. untuk membuat username dan password otentikasi PPTP kita 
+lakukan konfigurasi di /etc/ppp/chap-secrets yang terlihat pada gambar berikut ini 
+format :
+user service password ip
+
+Restart Service PPTPD
+/etc/init.d/pptpd restart 
+
+Cek status Service Network port 1723
+netstat -alpn | grep :1723 
+
+kemudian aktifkan IP forwarding pada server PPTP karena ini akan memungkinkan anda 
+untuk meneruskan paket antara IP publik dan IP privat yang anda setup dengan PPTP. 
+untuk mengaktifkan IP forwarding anda dapat melakukan konfigurasi di /etc/systcl.conf 
+dan rubahlah net.ipv4.ip_forward = 0 menjadi net.ipv4.ip_forward = 1 
+kemudian kita membuat rule NAT untuk iptables di konfigurasi /etc/rc.local 
+dan tambahkan konfigurasi berikut ini. 
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE 
+
+jika kita ingin mehubungkan client ke jaringan internet atau client bisa online tambahkan baris berikut ini di /etc/rc.local
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables --table nat --append POSTROUTING --out-interface ppp0 -j MASQUERADE
+iptables -I INPUT -s 192.168.0.0/24 -i ppp0 -j ACCEPT
+iptables --append FORWARD --in-interface eth0 -j ACCEPT 
