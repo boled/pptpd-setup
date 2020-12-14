@@ -1,0 +1,8 @@
+/ppp 
+add pptp-client
+user : giveuser
+password: givepassword
+ip dial : 103.xx.xx.xx
+
+for testing use this for performance
+
