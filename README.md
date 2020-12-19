@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://github.com/YogaSakti/TemplateGithub/raw/master/img/github.png" width="400px">
+</p>
+
+
 pptpd-setup
 ===========
 
